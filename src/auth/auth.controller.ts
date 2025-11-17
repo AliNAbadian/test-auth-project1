@@ -16,8 +16,11 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
+import { Roles } from './decorator/role.decorator';
+import { Role } from './enum/role.enum';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -40,8 +43,9 @@ export class AuthController {
     return this.authService.signUp(signUpDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get('profile')
+  @Roles(Role.Admin)
   getProfile(@Request() req) {
     return req.user;
   }

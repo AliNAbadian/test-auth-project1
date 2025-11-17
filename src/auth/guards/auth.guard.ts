@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
-import { jwtConstants } from './constants';
-import { AuthHeader } from './entities/auth.entity';
+import { jwtConstants } from '../constants';
+import { AuthHeader } from '../entities/auth.entity';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -39,7 +39,6 @@ export class AuthGuard implements CanActivate {
     const headers: AuthHeader = request.headers as AuthHeader;
 
     const authHeader = headers.authorization ?? '';
-    console.log(authHeader);
 
     const [type, token] = authHeader?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;

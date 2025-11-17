@@ -11,6 +11,7 @@ export class UserService {
       userId: 1,
       username: 'john',
       password: 'changeme',
+      roles: 'admin',
     },
     {
       userId: 2,
@@ -20,7 +21,6 @@ export class UserService {
   ];
 
   create(createUserDto: CreateUserDto) {
-    console.log(createUserDto);
     return createUserDto;
   }
 
