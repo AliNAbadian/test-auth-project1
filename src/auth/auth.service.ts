@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
+import { UserService } from 'src/user/user.service';
+import { SignUpDto } from './dto/sign-up.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly userService: UserService,
+    private jwtService: JwtService,
+  ) {}
+
+  // async signIn(username: string, pass: string) {
+  //   const user = await this.userService.findOne(username);
+
+  //   if (!user) {
+  //     throw new UnauthorizedException('User not found');
+  //   }
+
+  //   if (user.password !== pass) {
+  //     throw new UnauthorizedException('Invalid credentials');
+  //   }
+  //   const payload = { sub: user.userId, username: user.username };
+  //   return {
+  //     access_token: await this.jwtService.signAsync(payload),
+  //   };
+  // }
+
+  async signUp(signUpDto: SignUpDto) {
+    return signUpDto;
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async login(user: any) {
+    const payload = { username: user.username, password: user.password };
+    return { access_token: this.jwtService.sign(payload) };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async validateUser(username: string, pass: string) {
+    const user = await this.userService.findOne(username);
+    if (user && user.password == pass) {
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
   }
 }
