@@ -21,10 +21,16 @@ import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorator/role.decorator';
 import { Role } from './enum/role.enum';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { SendOtpDto } from './dto/send-otp.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('send-otp')
+  async sendOtp(@Body() sendOtpDto: SendOtpDto) {
+    return sendOtpDto;
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')

@@ -4,6 +4,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { UserService } from 'src/user/user.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { JwtService } from '@nestjs/jwt';
+import { SendOtpDto } from './dto/send-otp.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +29,10 @@ export class AuthService {
   //   };
   // }
 
+  async requestOtp(sendOtpDto: SendOtpDto) {
+    return sendOtpDto;
+  }
+
   async signUp(signUpDto: SignUpDto) {
     return signUpDto;
   }
@@ -43,10 +48,10 @@ export class AuthService {
 
   async validateUser(username: string, pass: string) {
     const user = await this.userService.findOne(username);
-    if (user && user.password == pass) {
-      const { password, ...result } = user;
-      return result;
-    }
+    // if (user && user.password == pass) {
+    //   const { password, ...result } = user;
+    //   return result;
+    // }
     return null;
   }
 }

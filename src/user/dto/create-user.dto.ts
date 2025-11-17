@@ -9,16 +9,15 @@ import {
 
 export class CreateUserDto {
   @IsNotEmpty()
-  @IsUUID()
-  id: string;
-
-  @IsNotEmpty()
-  @IsString()
-  //   @Min(3)
-  name: string;
-
-  @IsNotEmpty()
-  @IsString()
   @IsPhoneNumber('IR')
   phoneNumber: string;
+
+  @IsString()
+  firstName?: string;
+
+  @IsString()
+  lastName?: string;
+
+  @IsNumber()
+  nationalCode?: number;
 }
