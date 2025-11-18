@@ -1,15 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { Repository } from 'typeorm';
+import { Product } from './entities/product.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ProductService {
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+  ) {}
+  async create(createProductDto: CreateProductDto) {
+    console.log(createProductDto);
+    const payload = {
+      ...createProductDto,
+      slug: createProductDto.title.split(' ').join('-'),
+    };
+
+    const productSameSlugExsits =
+      await this.isProductSlugSame(createProductDto);
+
+    if (productSameSlugExsits)
+      throw new BadRequestException(
+        `Product With Name: ${createProductDto.title} exsits`,
+      );
+
+    const newProduct = await this.productRepository.create(payload);
+
+    return this.productRepository.save(newProduct);
   }
 
   findAll() {
-    return `This action returns all product`;
+    return this.productRepository.find();
   }
 
   findOne(id: number) {
@@ -22,5 +45,16 @@ export class ProductService {
 
   remove(id: number) {
     return `This action removes a #${id} product`;
+  }
+
+  async isProductSlugSame(
+    createProductDto: CreateProductDto,
+  ): Promise<boolean> {
+    const product = await this.productRepository.findOne({
+      where: { slug: createProductDto.title.split(' ').join('-') },
+    });
+
+    if (Boolean(product)) return true;
+    else return false;
   }
 }

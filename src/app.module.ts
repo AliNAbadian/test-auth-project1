@@ -8,6 +8,9 @@ import { BlogModule } from './blog/blog.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entities/user.entity';
 import { OtpModule } from './otp/otp.module';
+import { Product } from './product/entities/product.entity';
+import { MulterModule } from '@nestjs/platform-express';
+import { Gallery } from './gallery/enities/gallery.entity';
 
 @Module({
   imports: [
@@ -22,10 +25,13 @@ import { OtpModule } from './otp/otp.module';
       username: 'postgres',
       password: '465835',
       database: 'test',
-      entities: [User],
+      entities: [User, Product, Gallery],
       synchronize: true,
     }),
     OtpModule,
+    MulterModule.register({
+      dest: './uploads',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
