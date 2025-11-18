@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   BadRequestException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
@@ -22,6 +23,7 @@ import { Roles } from './decorator/role.decorator';
 import { Role } from './enum/role.enum';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { SendOtpDto } from './dto/send-otp.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,7 +31,12 @@ export class AuthController {
 
   @Post('send-otp')
   async sendOtp(@Body() sendOtpDto: SendOtpDto) {
-    return sendOtpDto;
+    return this.authService.requestOtp(sendOtpDto);
+  }
+
+  @Post('verify-otp')
+  async verifyOtp(@Body() verifyOtp: VerifyOtpDto) {
+    return this.authService.verifyOtp(verifyOtp);
   }
 
   @UseGuards(LocalAuthGuard)
@@ -51,8 +58,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get('profile')
-  @Roles(Role.Admin)
+  // @Roles(Role.Admin)
   getProfile(@Request() req) {
-    return req.user;
+    return this.authService.fetchProfile(req);
   }
 }

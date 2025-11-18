@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsPhoneNumber, Length } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsNotEmpty, IsPhoneNumber, Max, Min } from 'class-validator';
 
 export class VerifyOtpDto {
   @IsPhoneNumber('IR')
@@ -6,6 +7,9 @@ export class VerifyOtpDto {
   phoneNumber: string;
 
   @IsNotEmpty()
-  @Length(6, 6)
-  otp: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(100000)
+  @Max(999999)
+  otp: number;
 }

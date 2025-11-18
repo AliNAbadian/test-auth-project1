@@ -8,9 +8,11 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from './guards/roles.guard';
+import { OtpModule } from 'src/otp/otp.module';
 
 @Module({
   imports: [
+    OtpModule,
     UserModule,
     PassportModule.register({
       session: true,
@@ -18,7 +20,7 @@ import { RolesGuard } from './guards/roles.guard';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '3600s', algorithm: 'HS512' },
+      signOptions: { expiresIn: '7d', algorithm: 'HS512' },
       verifyOptions: {
         algorithms: ['ES384'],
       },

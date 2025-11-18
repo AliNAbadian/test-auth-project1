@@ -7,7 +7,6 @@ import { Redis } from '@upstash/redis';
     {
       provide: 'REDIS_CLIENT',
       useFactory: () => {
-        console.log('first');
         return new Redis({
           url: 'https://immense-griffon-32128.upstash.io',
           token:
