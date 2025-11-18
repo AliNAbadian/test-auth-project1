@@ -13,6 +13,8 @@ export class ProductService {
   ) {}
   async create(createProductDto: CreateProductDto) {
     console.log(createProductDto);
+
+    return;
     const payload = {
       ...createProductDto,
       slug: createProductDto.title.split(' ').join('-'),

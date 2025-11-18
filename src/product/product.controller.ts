@@ -19,6 +19,14 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { multerOptions } from 'src/common/multer/multer.config';
+
+// This custom decorator combines both interceptors cleanly
+export const MixedMultipartInterceptor = () =>
+  UseInterceptors(
+    FileInterceptor('thumbnail', multerOptions), // single file
+    FilesInterceptor('gallery', 20, multerOptions), // multiple files
+  );
 
 @Controller('product')
 export class ProductController {
@@ -26,52 +34,14 @@ export class ProductController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
-  }
-
-  @Post('upload-thumbnail')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          cb(null, join(__dirname, '..', '..', 'uploads', 'products'));
-
-          console.log(__dirname);
-        },
-
-        filename: (req, file, cb) => {
-          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = file.originalname.split('.').pop();
-          cb(null, `${unique}.${ext}`);
-        },
-      }),
-    }),
-  )
-  uploadThumbnail(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
-    if (!file) throw new BadRequestException();
-    return { url: `/uploads/products/${file.filename}` };
-  }
-
-  @Post('upload-gallery')
-  @UseInterceptors(
-    FilesInterceptor('files', 10, {
-      storage: diskStorage({
-        destination: (req, file, cb) => {
-          cb(null, join(__dirname, '..', '..', 'uploads', 'products'));
-        },
-        filename: (req, file, cb) => {
-          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = file.originalname.split('.').pop();
-          cb(null, `${unique}.${ext}`);
-        },
-      }),
-    }),
-  )
-  uploadGallery(@UploadedFiles() files: Express.Multer.File[]) {
-    return files.map((f) => `/products/${f.filename}`);
+  @MixedMultipartInterceptor()
+  create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFile() thumbnail: Express.Multer.File,
+    @UploadedFiles() gallery: Express.Multer.File[],
+  ) {
+    console.log(gallery);
+    return this.productService.create({ ...createProductDto });
   }
 
   @Get()
