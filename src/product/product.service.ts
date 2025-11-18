@@ -12,10 +12,7 @@ export class ProductService {
     private readonly productRepository: Repository<Product>,
   ) {}
   async create(createProductDto: CreateProductDto) {
-    console.log(createProductDto);
-
-    return;
-    const payload = {
+    let payload = {
       ...createProductDto,
       slug: createProductDto.title.split(' ').join('-'),
     };
@@ -34,7 +31,7 @@ export class ProductService {
   }
 
   findAll() {
-    return this.productRepository.find();
+    return this.productRepository.find({ relations: ['gallery'] });
   }
 
   findOne(id: number) {
@@ -58,5 +55,11 @@ export class ProductService {
 
     if (Boolean(product)) return true;
     else return false;
+  }
+
+  filterPath(images: Express.Multer.File[] | Express.Multer.File) {
+    if (Array.isArray(images)) {
+      return images.map((img) => img.path);
+    }
   }
 }

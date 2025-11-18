@@ -11,6 +11,8 @@ import { OtpModule } from './otp/otp.module';
 import { Product } from './product/entities/product.entity';
 import { MulterModule } from '@nestjs/platform-express';
 import { Gallery } from './gallery/enities/gallery.entity';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -22,9 +24,9 @@ import { Gallery } from './gallery/enities/gallery.entity';
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'postgres',
-      password: '465835',
-      database: 'test',
+      username: 'postgres', // default user
+      password: 'fg465835', // matches POSTGRES_PASSWORD
+      database: 'morphiq_db', // default DB
       entities: [User, Product, Gallery],
       synchronize: true,
     }),

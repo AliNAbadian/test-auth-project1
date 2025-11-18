@@ -19,9 +19,6 @@ export class CreateProductDto {
   @IsString()
   thumbnail?: string;
 
-  @IsOptional()
-  gallery?: Gallery[];
-
   @IsNotEmpty()
   @IsNumber()
   @Type(() => Number)

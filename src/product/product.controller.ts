@@ -10,38 +10,71 @@ import {
   UseInterceptors,
   UploadedFiles,
   UploadedFile,
-  BadRequestException,
+  Req,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { join } from 'path';
+
 import { multerOptions } from 'src/common/multer/multer.config';
 
-// This custom decorator combines both interceptors cleanly
-export const MixedMultipartInterceptor = () =>
+import {
+  FileFieldsInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
+import { GalleryService } from 'src/gallery/gallery.service';
+
+export const ProductUploadInterceptor = () =>
   UseInterceptors(
-    FileInterceptor('thumbnail', multerOptions), // single file
-    FilesInterceptor('gallery', 20, multerOptions), // multiple files
+    FileFieldsInterceptor(
+      [
+        { name: 'thumbnail', maxCount: 1 },
+        { name: 'gallery', maxCount: 20 },
+      ],
+      multerOptions,
+    ),
   );
 
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly galleryService: GalleryService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  @MixedMultipartInterceptor()
+  @ProductUploadInterceptor()
   create(
-    @Body() createProductDto: CreateProductDto,
-    @UploadedFile() thumbnail: Express.Multer.File,
-    @UploadedFiles() gallery: Express.Multer.File[],
+    @Body() dto: CreateProductDto,
+    @UploadedFiles()
+    files: {
+      thumbnail?: Express.Multer.File[];
+    },
+    @Req() req,
   ) {
-    console.log(gallery);
-    return this.productService.create({ ...createProductDto });
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+    const thumbnail = files?.thumbnail?.[0];
+
+    const thumbnailUrl = thumbnail
+      ? `${baseUrl}/uploads/products/thumbnails/${thumbnail.filename}`
+      : undefined;
+
+    return this.productService.create({
+      ...dto,
+      thumbnail: thumbnailUrl,
+    });
+  }
+
+  @Post(':id/gallery')
+  @UseInterceptors(FilesInterceptor('gallery', 20, multerOptions))
+  async uploadGallery(
+    @Param('id') id: number,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return this.galleryService.uploadGalleryImages(id, files);
   }
 
   @Get()
