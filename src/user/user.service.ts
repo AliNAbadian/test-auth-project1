@@ -21,8 +21,8 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(id: string) {
-    return this.userRepository.find({ where: { id: +id } });
+  async findOne(id: number) {
+    return this.userRepository.findOne({ where: { id: +id } });
   }
 
   async findByPhonenumber(phoneNumber: string) {

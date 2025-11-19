@@ -13,6 +13,9 @@ import { MulterModule } from '@nestjs/platform-express';
 import { Gallery } from './gallery/enities/gallery.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { CartModule } from './cart/cart.module';
+import { Cart } from 'src/cart/entities/cart.entity';
+import { CartItem } from 'src/cart/entities/cart-item.entity';
 
 @Module({
   imports: [
@@ -27,13 +30,14 @@ import { join } from 'path';
       username: 'postgres', // default user
       password: 'fg465835', // matches POSTGRES_PASSWORD
       database: 'morphiq_db', // default DB
-      entities: [User, Product, Gallery],
+      entities: [User, Product, Gallery, Cart, CartItem],
       synchronize: true,
     }),
     OtpModule,
     MulterModule.register({
       dest: './uploads',
     }),
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],
