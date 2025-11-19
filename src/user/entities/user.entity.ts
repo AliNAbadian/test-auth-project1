@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -31,9 +32,18 @@ export class User {
   @Column({ unique: true, nullable: true })
   nationalCode: number;
 
+  @Column({ nullable: true })
+  postalCode: number;
+
+  @Column({ nullable: true })
+  address: string;
+
   @Column({ default: true })
   isActive: boolean;
 
   @CreateDateColumn()
   created_at: Date; // ← خودکار توسط DB پر می‌شود
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }
