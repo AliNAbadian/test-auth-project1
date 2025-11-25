@@ -9,5 +9,6 @@ import { GalleryModule } from 'src/gallery/gallery.module';
   imports: [TypeOrmModule.forFeature([Product]), GalleryModule],
   controllers: [ProductController],
   providers: [ProductService],
+  exports: [ProductService],
 })
 export class ProductModule {}

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Repository } from 'typeorm';
@@ -34,8 +38,11 @@ export class ProductService {
     return this.productRepository.find({ relations: ['gallery'] });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    return await this.productRepository.findOne({
+      where: { id: +id },
+      relations: ['gallery'],
+    });
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
@@ -55,6 +62,12 @@ export class ProductService {
 
     if (Boolean(product)) return true;
     else return false;
+  }
+
+  async getProductPrice(id: number) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) throw new NotFoundException('Product not found');
+    return product.price;
   }
 
   filterPath(images: Express.Multer.File[] | Express.Multer.File) {

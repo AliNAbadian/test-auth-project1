@@ -44,6 +44,9 @@ export class Order {
   @Column({ type: 'enum', enum: DeliveryMethod, nullable: true })
   deliveryMethod: DeliveryMethod;
 
+  @Column({ type: 'int', default: 0, nullable: false })
+  totalPrice: number;
+
   @CreateDateColumn()
   created_at: Date;
 

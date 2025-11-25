@@ -1,3 +1,6 @@
+import { Type } from 'class-transformer';
+import { IsInt, IsString, Min } from 'class-validator';
+
 export enum OrderStatus {
   Pending = 'pending',
   Processing = 'processing',
@@ -22,7 +25,12 @@ export enum DeliveryMethod {
   Tipax = 'tipax',
 }
 
-export interface OrderItems {
-  productId: number;
+export class OrderItems {
+  @IsString()
+  @Type(() => String)
+  productId: string;
+
+  @IsInt()
+  @Min(1)
   quantity: number;
 }

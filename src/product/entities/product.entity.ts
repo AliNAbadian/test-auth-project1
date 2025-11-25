@@ -35,7 +35,7 @@ export class Product {
   @OneToMany(() => Gallery, (gallery) => gallery.product, { cascade: true })
   gallery: Gallery[];
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { precision: 10, scale: 2, nullable: false, default: 0 })
   @IsNumber()
   price: number;
 

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -11,13 +12,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
 import { Repository } from 'typeorm';
 import { PaymentService } from '@/payment/payment.service';
+import { ProductService } from '@/product/product.service';
+import { OrderItem } from './entities/order-item.entity';
+import { PaymentStatus } from './types';
 
 @Injectable()
 export class OrderService {
   constructor(
     @Inject(forwardRef(() => UserService)) private userService: UserService,
     @InjectRepository(Order) private orderRepo: Repository<Order>,
+    @InjectRepository(OrderItem) private orderItemRepo: Repository<OrderItem>,
     private readonly paymentService: PaymentService,
+    private readonly productService: ProductService,
   ) {}
   async test() {
     console.log(
@@ -38,8 +44,30 @@ export class OrderService {
   findUserOrders(id: number) {
     return this.orderRepo.find({ where: { userId: id } });
   }
-  create(createOrderDto: CreateOrderDto) {
-    return 'This action adds a new order';
+  async create(createOrderDto: CreateOrderDto, userId: string) {
+    let totalPrice = 0;
+    let items: any[] = [];
+    for (const item of createOrderDto.items) {
+      let linePrice = 0;
+      const product = await this.productService.findOne(item.productId);
+      if (!product) throw new NotFoundException('Product not found');
+      if (item.quantity > product.quantity) {
+        // TODO: remove order
+        throw new BadRequestException('Product quantity not enough');
+      }
+      linePrice = product.price * item.quantity;
+      items.push({ product, quantity: item.quantity, price: product.price });
+      totalPrice += item.quantity * product.price;
+    }
+
+    const order = this.orderRepo.create({
+      userId: +userId,
+      items,
+      totalPrice,
+    });
+
+    console.log(order);
+    return order;
   }
 
   findAll() {

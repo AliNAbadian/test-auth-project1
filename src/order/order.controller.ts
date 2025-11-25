@@ -6,23 +6,32 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  create(@Body() createOrderDto: CreateOrderDto, @Request() req) {
+    return this.orderService.create(createOrderDto, req.user.id);
   }
 
   @Get()
   findAll() {
     return this.orderService.test();
+  }
+
+  @Post('checkout')
+  checkout(@Body() createOrderDto: CreateOrderDto, @Request() req) {
+    return this.orderService.create(createOrderDto, req.user.id);
   }
 
   @Get(':id')
