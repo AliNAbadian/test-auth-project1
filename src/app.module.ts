@@ -16,6 +16,7 @@ import { join } from 'path';
 import { CartModule } from './cart/cart.module';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { CartItem } from 'src/cart/entities/cart-item.entity';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -28,8 +29,8 @@ import { CartItem } from 'src/cart/entities/cart-item.entity';
       host: 'localhost',
       port: 5432,
       username: 'postgres', // default user
-      password: 'fg465835', // matches POSTGRES_PASSWORD
-      database: 'morphiq_db', // default DB
+      password: '465835', // matches POSTGRES_PASSWORD
+      database: 'test', // default DB
       entities: [User, Product, Gallery, Cart, CartItem],
       synchronize: true,
     }),
@@ -38,6 +39,7 @@ import { CartItem } from 'src/cart/entities/cart-item.entity';
       dest: './uploads',
     }),
     CartModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

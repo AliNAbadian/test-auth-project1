@@ -39,6 +39,10 @@ export class Product {
   @IsNumber()
   price: number;
 
+  @Column('int', { default: 0 })
+  @Type(() => Number)
+  quantity: number;
+
   @CreateDateColumn()
   created_at: Date;
 

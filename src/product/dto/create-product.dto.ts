@@ -1,11 +1,15 @@
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
-import { Gallery } from 'src/gallery/enities/gallery.entity';
 
 export class CreateProductDto {
   @IsNotEmpty()
   @IsString()
   title: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  quantity: number;
 
   @IsOptional()
   @IsString()
