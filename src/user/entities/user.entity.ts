@@ -1,10 +1,12 @@
 import { Role } from 'src/auth/enum/role.enum';
+import { Order } from 'src/order/entities/order.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -40,6 +42,9 @@ export class User {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 
   @CreateDateColumn()
   created_at: Date; // ← خودکار توسط DB پر می‌شود

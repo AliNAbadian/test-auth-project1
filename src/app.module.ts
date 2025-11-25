@@ -17,6 +17,10 @@ import { CartModule } from './cart/cart.module';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { CartItem } from 'src/cart/entities/cart-item.entity';
 import { OrderModule } from './order/order.module';
+import { Order } from './order/entities/order.entity';
+import { OrderItem } from './order/entities/order-item.entity';
+import { PaymentModule } from './payment/payment.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -31,7 +35,7 @@ import { OrderModule } from './order/order.module';
       username: 'postgres', // default user
       password: '465835', // matches POSTGRES_PASSWORD
       database: 'test', // default DB
-      entities: [User, Product, Gallery, Cart, CartItem],
+      entities: [User, Product, Gallery, Cart, CartItem, Order, OrderItem],
       synchronize: true,
     }),
     OtpModule,
@@ -40,6 +44,10 @@ import { OrderModule } from './order/order.module';
     }),
     CartModule,
     OrderModule,
+    PaymentModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
