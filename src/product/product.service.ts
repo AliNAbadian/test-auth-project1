@@ -40,7 +40,7 @@ export class ProductService {
 
   async findOne(id: string) {
     return await this.productRepository.findOne({
-      where: { id: +id },
+      where: { id: id },
       relations: ['gallery'],
     });
   }
@@ -64,7 +64,7 @@ export class ProductService {
     else return false;
   }
 
-  async getProductPrice(id: number) {
+  async getProductPrice(id: string) {
     const product = await this.productRepository.findOne({ where: { id } });
     if (!product) throw new NotFoundException('Product not found');
     return product.price;
@@ -74,5 +74,19 @@ export class ProductService {
     if (Array.isArray(images)) {
       return images.map((img) => img.path);
     }
+  }
+
+  async changeProductQuantity(id: string, quantity: number) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) throw new NotFoundException('Product not found');
+    product.quantity = product.quantity - quantity;
+    return this.productRepository.save(product);
+  }
+
+  async revertProductQuantity(id: string, quantity: number) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) throw new NotFoundException('Product not found');
+    product.quantity = product.quantity + quantity;
+    return this.productRepository.save(product);
   }
 }

@@ -71,7 +71,7 @@ export class ProductController {
   @Post(':id/gallery')
   @UseInterceptors(FilesInterceptor('gallery', 20, multerOptions))
   async uploadGallery(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     return this.galleryService.uploadGalleryImages(id, files);

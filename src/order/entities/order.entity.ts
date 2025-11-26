@@ -19,11 +19,11 @@ import { OrderItem } from './order-item.entity';
 
 @Entity('order')
 export class Order {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
-  userId: number;
+  userId: string;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'userId' })
@@ -44,7 +44,7 @@ export class Order {
   @Column({ type: 'enum', enum: DeliveryMethod, nullable: true })
   deliveryMethod: DeliveryMethod;
 
-  @Column({ type: 'int', default: 0, nullable: false })
+  @Column({ type: 'numeric', default: 0, nullable: false })
   totalPrice: number;
 
   @CreateDateColumn()

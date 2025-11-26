@@ -5,7 +5,7 @@ import { Product } from 'src/product/entities/product.entity';
 
 @Entity('gallery')
 export class Gallery {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column()

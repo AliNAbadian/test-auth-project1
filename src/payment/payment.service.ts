@@ -29,11 +29,7 @@ export class PaymentService {
         amount: amount,
         callback_url: callbackUrl,
         description: description,
-        metadata: {
-          mobile: metadata?.mobile || '',
-          email: metadata?.email || '',
-          order_id: metadata?.order_id || '',
-        },
+        metadata: metadata || [],
       };
 
       const { data } = await axios.post(this.requestUrl, payload, {

@@ -28,8 +28,8 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne(id: number) {
-    return this.userRepository.findOne({ where: { id: +id } });
+  async findOne(id: string) {
+    return this.userRepository.findOne({ where: { id: id } });
   }
 
   async findByPhonenumber(phoneNumber: string) {
@@ -54,7 +54,7 @@ export class UserService {
     return `This action removes a #${id} user`;
   }
 
-  async getOrders(id: number) {
+  async getOrders(id: string) {
     const user = await this.findOne(id);
     if (!user) throw new NotFoundException('User not found');
 

@@ -19,7 +19,7 @@ export class GalleryService {
 
   // Main method: upload multiple images for a product
   async uploadGalleryImages(
-    productId: number,
+    productId: string,
     files: Array<Express.Multer.File>,
   ): Promise<Gallery[]> {
     if (!files || files.length === 0) {

@@ -12,7 +12,7 @@ import { Product } from '@/product/entities/product.entity';
 
 @Entity('order_item')
 export class OrderItem {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column()
@@ -32,7 +32,13 @@ export class OrderItem {
   @Column()
   quantity: number;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: false,
+    default: 0,
+  })
   price: number; // قیمت در لحظه سفارش ثبت می‌شود
 
   @CreateDateColumn()

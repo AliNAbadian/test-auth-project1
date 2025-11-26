@@ -5,7 +5,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { DeliveryMethod, OrderItems } from '../types';
+import { DeliveryMethod, OrderItems, PaymentMethod } from '../types';
 import { Type } from 'class-transformer';
 
 export class CreateOrderDto {
@@ -17,7 +17,7 @@ export class CreateOrderDto {
   @IsEnum(DeliveryMethod)
   deliveryMethod: DeliveryMethod;
 
-  @IsString()
+  @IsEnum(PaymentMethod)
   @IsNotEmpty()
-  paymentMethod: string;
+  paymentMethod: PaymentMethod;
 }

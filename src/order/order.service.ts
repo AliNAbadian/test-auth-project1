@@ -41,37 +41,93 @@ export class OrderService {
     // return orders;
   }
 
-  findUserOrders(id: number) {
+  findUserOrders(id: string) {
     return this.orderRepo.find({ where: { userId: id } });
   }
   async create(createOrderDto: CreateOrderDto, userId: string) {
     let totalPrice = 0;
+    console.log('first');
     let items: any[] = [];
     for (const item of createOrderDto.items) {
       let linePrice = 0;
+      console.log('productId received = ', item.productId);
       const product = await this.productService.findOne(item.productId);
       if (!product) throw new NotFoundException('Product not found');
       if (item.quantity > product.quantity) {
         // TODO: remove order
+
         throw new BadRequestException('Product quantity not enough');
       }
+
+      await this.productService.changeProductQuantity(
+        product.id,
+        item.quantity,
+      );
       linePrice = product.price * item.quantity;
       items.push({ product, quantity: item.quantity, price: product.price });
       totalPrice += item.quantity * product.price;
     }
 
     const order = this.orderRepo.create({
-      userId: +userId,
+      userId: userId,
       items,
       totalPrice,
+      deliveryMethod: createOrderDto.deliveryMethod,
+      paymentMethod: createOrderDto.paymentMethod,
     });
 
-    console.log(order);
-    return order;
+    await this.orderRepo.save(order);
+
+    for (const item of items) {
+      const orderItem = this.orderItemRepo.create({
+        order: order,
+        product: item.product,
+        quantity: item.quantity,
+        price: item.price,
+      });
+      await this.orderItemRepo.save(orderItem);
+    }
+
+    return await this.excutePayment(order.id);
+
+    return this.orderRepo.findOne({
+      where: { id: order.id },
+      relations: ['items', 'items.product'],
+    });
   }
 
-  findAll() {
-    return `This action returns all order`;
+  async excutePayment(orderId: string) {
+    const order = await this.orderRepo.findOne({ where: { id: orderId } });
+    if (!order) throw new NotFoundException('Order not found');
+    const payment = await this.paymentService.createPayment(
+      order.totalPrice,
+      `Payment for order ${order.id}`,
+      'https://www.google.com',
+    );
+
+    order.paymentStatus = PaymentStatus.Pending;
+
+    await this.orderRepo.save(order);
+    return payment;
+  }
+
+  async removeOrderItems(orderId: string) {
+    await this.orderItemRepo.delete({ order: { id: orderId } });
+  }
+
+  async findAll() {
+    return await this.orderRepo.find({ relations: ['items', 'items.product'] });
+  }
+
+  async findUnPaidOrders() {
+    return await this.orderRepo.find({
+      where: [
+        { paymentStatus: PaymentStatus.Pending },
+        { paymentStatus: PaymentStatus.Failed },
+      ],
+
+      relations: ['items', 'items.product'],
+    });
   }
 
   findOne(id: number) {
@@ -83,6 +139,7 @@ export class OrderService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} order`;
+    console.log(`This action removes a #${id} order`);
+    return this.orderRepo.delete(id);
   }
 }
