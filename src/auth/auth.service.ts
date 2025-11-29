@@ -60,14 +60,20 @@ export class AuthService {
         phoneNumber: userIsAvailable.phoneNumber,
         firstName: userIsAvailable.firstName,
         lastName: userIsAvailable.lastName,
+        roles: userIsAvailable.roles,
       });
 
       return {
         message: 'Logged In',
-        userInfo: userIsAvailable,
+        userInfo: {
+          id: userIsAvailable.id,
+          phoneNumber: userIsAvailable.phoneNumber,
+          firstName: userIsAvailable.firstName,
+          lastName: userIsAvailable.lastName,
+          roles: userIsAvailable.roles,
+        },
         token,
       };
-      //TODO: return the user of the phone number and sign jwt for the user
     } else {
       const newUser = await this.userService.create({
         phoneNumber: verifyOtpDto.phoneNumber,
@@ -78,11 +84,18 @@ export class AuthService {
         phoneNumber: newUser.phoneNumber,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
+        roles: newUser.roles,
       });
 
       return {
         message: 'User Created Successfully',
-        userInfo: newUser,
+        userInfo: {
+          id: newUser.id,
+          phoneNumber: newUser.phoneNumber,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
+          roles: newUser.roles,
+        },
         token,
       };
     }

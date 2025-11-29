@@ -15,9 +15,9 @@ export class OtpService {
 
     if (Boolean(isOtpAlreadyExsit)) {
       const timeLeft = await this.redis.ttl(`otp:${phone}`);
-      throw new BadRequestException(
-        `You Must Wait Before Requesting new otp: ${timeLeft} seconds left`,
-      );
+      // throw new BadRequestException(
+      //   `You Must Wait Before Requesting new otp: ${timeLeft} seconds left`,
+      // );
     }
     const otp = Math.floor(100000 + Math.random() * 9000).toString();
 

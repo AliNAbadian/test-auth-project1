@@ -26,6 +26,8 @@ import { ConfigModule } from '@nestjs/config';
 import { RequestLoggerMiddleware } from './common/middlewares/logger.middleware';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
+import { PanelModule } from './panel/panel.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -65,6 +67,8 @@ import { TasksModule } from './tasks/tasks.module';
     }),
     ScheduleModule.forRoot(),
     TasksModule,
+    PanelModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

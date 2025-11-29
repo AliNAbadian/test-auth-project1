@@ -30,6 +30,8 @@ async function bootstrap() {
       'JWT-auth',
     )
     .addTag('Auth', 'Authentication endpoints')
+    .addTag('User Panel', 'User panel - Profile, Orders, Dashboard')
+    .addTag('Admin', 'Admin panel - User/Order/Product management (Admin only)')
     .addTag('User', 'User management endpoints')
     .addTag('Product', 'Product management endpoints')
     .addTag('Order', 'Order management endpoints')
@@ -38,7 +40,10 @@ async function bootstrap() {
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('api', app, documentFactory, {
+    jsonDocumentUrl: '/api-json',
+    yamlDocumentUrl: '/api-yaml',
+  });
 
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads/',
