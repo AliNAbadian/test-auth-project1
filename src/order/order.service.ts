@@ -138,7 +138,7 @@ export class OrderService {
     return `This action updates a #${id} order`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     console.log(`This action removes a #${id} order`);
     return this.orderRepo.delete(id);
   }

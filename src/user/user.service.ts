@@ -25,11 +25,14 @@ export class UserService {
   }
 
   findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({ relations: ['gallery'] });
   }
 
   async findOne(id: string) {
-    return this.userRepository.findOne({ where: { id: id } });
+    return this.userRepository.findOne({
+      where: { id: id },
+      relations: ['gallery'],
+    });
   }
 
   async findByPhonenumber(phoneNumber: string) {

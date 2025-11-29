@@ -5,8 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
 import { BlogModule } from './blog/blog.module';
+import { Blog } from './blog/entities/blog.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/entities/user.entity';
+import { UserGallery } from './user/entities/user-gallery.entity';
 import { OtpModule } from './otp/otp.module';
 import { Product } from './product/entities/product.entity';
 import { MulterModule } from '@nestjs/platform-express';
@@ -38,7 +40,17 @@ import { TasksModule } from './tasks/tasks.module';
       username: 'postgres', // default user
       password: '465835', // matches POSTGRES_PASSWORD
       database: 'test', // default DB
-      entities: [User, Product, Gallery, Cart, CartItem, Order, OrderItem],
+      entities: [
+        User,
+        UserGallery,
+        Product,
+        Gallery,
+        Cart,
+        CartItem,
+        Order,
+        OrderItem,
+        Blog,
+      ],
       synchronize: true,
     }),
     OtpModule,

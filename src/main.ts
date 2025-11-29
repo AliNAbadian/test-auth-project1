@@ -13,10 +13,28 @@ import { join } from 'path';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = new DocumentBuilder()
-    .setTitle('API Documentation')
-    .setDescription('GUGULIIIII')
-    .setVersion('v0.0.1 Beta')
-    .addTag('OnlineShop')
+    .setTitle('Online Shop API')
+    .setDescription(
+      'Complete API documentation for the Online Shop application',
+    )
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .addTag('Auth', 'Authentication endpoints')
+    .addTag('User', 'User management endpoints')
+    .addTag('Product', 'Product management endpoints')
+    .addTag('Order', 'Order management endpoints')
+    .addTag('Cart', 'Shopping cart endpoints')
+    .addTag('Blog', 'Blog management endpoints')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
