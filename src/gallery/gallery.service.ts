@@ -19,7 +19,7 @@ export class GalleryService {
 
   async getAllGallery() {
     return this.galleryRepo.find({
-      relations: ['product'],
+      relations: { product: true },
     });
   }
 
