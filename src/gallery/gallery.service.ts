@@ -17,6 +17,12 @@ export class GalleryService {
     private productRepo: Repository<Product>,
   ) {}
 
+  async getAllGallery() {
+    return this.galleryRepo.find({
+      relations: ['product'],
+    });
+  }
+
   // Main method: upload multiple images for a product
   async uploadGalleryImages(
     productId: string,
