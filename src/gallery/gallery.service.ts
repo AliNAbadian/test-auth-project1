@@ -49,15 +49,15 @@ export class GalleryService {
   }
 
   // Optional: delete image
-  async remove(id: number) {
-    const gallery = await this.galleryRepo.findOne({ where: { id } });
+  async remove(id: string) {
+    const gallery = await this.galleryRepo.findOne({ where: { id: id } });
     if (!gallery) throw new BadRequestException('Image not found');
 
     // Optional: delete physical file
     // const filePath = join(__dirname, '..', '..', 'uploads', 'products', 'gallery', gallery.url.split('/').pop());
     // await unlink(filePath).catch(() => {});
 
-    await this.galleryRepo.delete(id);
+    await this.galleryRepo.delete(gallery.id);
     return { message: 'Deleted' };
   }
 }

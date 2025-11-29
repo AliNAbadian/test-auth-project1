@@ -21,6 +21,8 @@ export class ProductService {
       slug: createProductDto.title.split(' ').join('-'),
     };
 
+    console.log(createProductDto);
+
     const productSameSlugExsits =
       await this.isProductSlugSame(createProductDto);
 
@@ -45,12 +47,20 @@ export class ProductService {
     });
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) throw new NotFoundException('Product not found');
+    const updatedProduct = this.productRepository.merge(
+      product,
+      updateProductDto,
+    );
+
+    console.log(updatedProduct);
+    return this.productRepository.save(updatedProduct);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  remove(id: string) {
+    return this.productRepository.delete(id);
   }
 
   async isProductSlugSame(
