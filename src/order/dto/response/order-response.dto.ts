@@ -61,6 +61,15 @@ export class OrderResponseDto {
   @ApiProperty({ example: 2599.98 })
   totalPrice: number;
 
+  @ApiPropertyOptional({ example: 'A000000000000000000000000000000000000', description: 'Payment authority code' })
+  paymentAuthority?: string;
+
+  @ApiPropertyOptional({ example: '123456789', description: 'Payment reference ID' })
+  paymentRefId?: string;
+
+  @ApiPropertyOptional({ example: 'IR123456789', description: 'Transportation tracking code' })
+  trackingCode?: string;
+
   @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
   created_at: Date;
 

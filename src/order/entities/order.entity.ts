@@ -84,6 +84,27 @@ export class Order {
   @Column({ type: 'numeric', default: 0, nullable: false })
   totalPrice: number;
 
+  @ApiPropertyOptional({
+    description: 'Payment authority code from payment gateway',
+    example: 'A000000000000000000000000000000000000',
+  })
+  @Column({ nullable: true })
+  paymentAuthority: string;
+
+  @ApiPropertyOptional({
+    description: 'Payment reference ID after verification',
+    example: '123456789',
+  })
+  @Column({ nullable: true })
+  paymentRefId: string;
+
+  @ApiPropertyOptional({
+    description: 'Transportation tracking code',
+    example: 'IR123456789',
+  })
+  @Column({ nullable: true })
+  trackingCode: string;
+
   @ApiProperty({
     description: 'Order creation date',
     example: '2024-01-01T00:00:00.000Z',

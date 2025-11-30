@@ -10,7 +10,7 @@ export class TasksService {
     private readonly orderService: OrderService,
     private readonly productService: ProductService,
   ) {}
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_QUARTER)
   async findAndDeleteUnPaidOrders() {
     const orders = await this.orderService.findUnPaidOrders();
     for (const order of orders) {

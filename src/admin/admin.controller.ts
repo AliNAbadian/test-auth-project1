@@ -24,6 +24,7 @@ import { Role } from 'src/auth/enum/role.enum';
 import { AdminService } from './admin.service';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { UpdateTrackingCodeDto } from './dto/update-tracking-code.dto';
 import { ErrorResponseDto } from 'src/common/dto/response.dto';
 import {
   AdminDashboardResponseDto,
@@ -39,6 +40,7 @@ import {
   DeleteOrderResponseDto,
   PaginatedProductsResponseDto,
   DeleteProductResponseDto,
+  UpdateTrackingCodeResponseDto,
 } from './dto/response/admin-response.dto';
 
 @ApiTags('Admin')
@@ -375,6 +377,43 @@ export class AdminController {
     @Body() updateStatusDto: UpdateOrderStatusDto,
   ) {
     return this.adminService.updateOrderStatus(orderId, updateStatusDto);
+  }
+
+  @Patch('orders/:orderId/tracking')
+  @ApiOperation({
+    summary: 'Add/Update transportation tracking code',
+    description: 'Add or update tracking code for a shipped order',
+  })
+  @ApiParam({
+    name: 'orderId',
+    description: 'Order UUID',
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Tracking code updated successfully',
+    type: UpdateTrackingCodeResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Order must be shipped before adding tracking code',
+    type: ErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found',
+    type: ErrorResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin only',
+    type: ErrorResponseDto,
+  })
+  updateTrackingCode(
+    @Param('orderId') orderId: string,
+    @Body() updateTrackingDto: UpdateTrackingCodeDto,
+  ) {
+    return this.adminService.updateTrackingCode(orderId, updateTrackingDto.trackingCode);
   }
 
   @Delete('orders/:orderId')

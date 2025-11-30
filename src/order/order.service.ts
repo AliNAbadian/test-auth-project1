@@ -14,7 +14,7 @@ import { Repository } from 'typeorm';
 import { PaymentService } from '@/payment/payment.service';
 import { ProductService } from '@/product/product.service';
 import { OrderItem } from './entities/order-item.entity';
-import { PaymentStatus } from './types';
+import { PaymentStatus, OrderStatus } from './types';
 
 @Injectable()
 export class OrderService {
@@ -44,7 +44,26 @@ export class OrderService {
   findUserOrders(id: string) {
     return this.orderRepo.find({ where: { userId: id } });
   }
+
+  async checkPendingOrder(userId: string): Promise<boolean> {
+    const pendingOrder = await this.orderRepo.findOne({
+      where: {
+        userId,
+        orderStatus: OrderStatus.Pending,
+        paymentStatus: PaymentStatus.Pending,
+      },
+    });
+    return !!pendingOrder;
+  }
+
   async create(createOrderDto: CreateOrderDto, userId: string) {
+    // Check if user has a pending order
+    const hasPendingOrder = await this.checkPendingOrder(userId);
+    if (hasPendingOrder) {
+      throw new BadRequestException(
+        'You have a pending order. Please complete or cancel it before creating a new order.',
+      );
+    }
     let totalPrice = 0;
     console.log('first');
     let items: any[] = [];
@@ -99,16 +118,116 @@ export class OrderService {
   async excutePayment(orderId: string) {
     const order = await this.orderRepo.findOne({ where: { id: orderId } });
     if (!order) throw new NotFoundException('Order not found');
+    
+    const callbackUrl = `${process.env.APP_URL || 'http://localhost:8000'}/order/payment/verify`;
+    
     const payment = await this.paymentService.createPayment(
       order.totalPrice,
       `Payment for order ${order.id}`,
-      'https://www.google.com',
+      callbackUrl,
+      { orderId: order.id },
     );
 
     order.paymentStatus = PaymentStatus.Pending;
+    order.paymentAuthority = payment.authority;
 
     await this.orderRepo.save(order);
     return payment;
+  }
+
+  async verifyPayment(authority: string, status: string) {
+    // Find order by payment authority
+    const order = await this.orderRepo.findOne({
+      where: { paymentAuthority: authority },
+      relations: ['items', 'items.product'],
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found for this payment');
+    }
+
+    // If payment was already verified
+    if (order.paymentStatus === PaymentStatus.Completed) {
+      return {
+        message: 'Payment already verified',
+        orderId: order.id,
+        status: 'already_verified',
+      };
+    }
+
+    // If user cancelled payment
+    if (status !== 'OK') {
+      order.paymentStatus = PaymentStatus.Failed;
+      await this.orderRepo.save(order);
+      
+      // Revert product quantities
+      for (const item of order.items) {
+        await this.productService.revertProductQuantity(
+          item.product.id,
+          item.quantity,
+        );
+      }
+
+      throw new BadRequestException('Payment was cancelled or failed');
+    }
+
+    // Verify payment with gateway
+    const verification = await this.paymentService.verifyPayment(
+      order.totalPrice,
+      authority,
+    );
+
+    if (verification.status === 'SUCCESS') {
+      order.paymentStatus = PaymentStatus.Completed;
+      order.paymentRefId = verification.refId;
+      order.orderStatus = OrderStatus.Processing;
+      await this.orderRepo.save(order);
+
+      return {
+        message: 'Payment verified successfully',
+        orderId: order.id,
+        orderStatus: order.orderStatus,
+        paymentRefId: verification.refId,
+        order: await this.orderRepo.findOne({
+          where: { id: order.id },
+          relations: ['items', 'items.product'],
+        }),
+      };
+    } else {
+      order.paymentStatus = PaymentStatus.Failed;
+      await this.orderRepo.save(order);
+
+      // Revert product quantities
+      for (const item of order.items) {
+        await this.productService.revertProductQuantity(
+          item.product.id,
+          item.quantity,
+        );
+      }
+
+      throw new BadRequestException('Payment verification failed');
+    }
+  }
+
+  async updateTrackingCode(orderId: string, trackingCode: string) {
+    const order = await this.orderRepo.findOne({ where: { id: orderId } });
+    if (!order) throw new NotFoundException('Order not found');
+
+    // Only allow tracking code for shipped orders
+    if (order.orderStatus !== OrderStatus.Shipped) {
+      throw new BadRequestException(
+        'Tracking code can only be added to shipped orders',
+      );
+    }
+
+    order.trackingCode = trackingCode;
+    await this.orderRepo.save(order);
+
+    return {
+      message: 'Tracking code updated successfully',
+      orderId: order.id,
+      trackingCode: order.trackingCode,
+    };
   }
 
   async removeOrderItems(orderId: string) {

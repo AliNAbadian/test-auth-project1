@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, forwardRef, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
@@ -7,6 +7,7 @@ import { Product } from 'src/product/entities/product.entity';
 import { Role } from 'src/auth/enum/role.enum';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrderStatus, PaymentStatus } from 'src/order/types';
+import { OrderService } from 'src/order/order.service';
 
 @Injectable()
 export class AdminService {
@@ -17,6 +18,8 @@ export class AdminService {
     private orderRepo: Repository<Order>,
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
+    @Inject(forwardRef(() => OrderService))
+    private orderService: OrderService,
   ) {}
 
   // ==================== DASHBOARD ====================
@@ -290,6 +293,10 @@ export class AdminService {
       message: 'Order deleted successfully',
       orderId,
     };
+  }
+
+  async updateTrackingCode(orderId: string, trackingCode: string) {
+    return this.orderService.updateTrackingCode(orderId, trackingCode);
   }
 
   // ==================== PRODUCT MANAGEMENT ====================

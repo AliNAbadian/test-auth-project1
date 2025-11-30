@@ -205,6 +205,15 @@ export class AdminOrderDto {
   @ApiProperty({ example: 2599.98 })
   totalPrice: number;
 
+  @ApiPropertyOptional({ example: 'A000000000000000000000000000000000000' })
+  paymentAuthority?: string;
+
+  @ApiPropertyOptional({ example: '123456789' })
+  paymentRefId?: string;
+
+  @ApiPropertyOptional({ example: 'IR123456789' })
+  trackingCode?: string;
+
   @ApiProperty({ example: '2024-01-01T00:00:00.000Z' })
   created_at: Date;
 
@@ -232,6 +241,17 @@ export class UpdateOrderStatusResponseDto {
 
   @ApiProperty({ enum: PaymentStatus, example: PaymentStatus.Completed })
   paymentStatus: PaymentStatus;
+}
+
+export class UpdateTrackingCodeResponseDto {
+  @ApiProperty({ example: 'Tracking code updated successfully' })
+  message: string;
+
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
+  orderId: string;
+
+  @ApiProperty({ example: 'IR123456789' })
+  trackingCode: string;
 }
 
 export class DeleteOrderResponseDto {
@@ -291,4 +311,3 @@ export class DeleteProductResponseDto {
   @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
   productId: string;
 }
-
