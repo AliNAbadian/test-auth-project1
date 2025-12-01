@@ -86,12 +86,12 @@ export class ProductSeedService {
     // Generate dimensions (optional, 70% chance)
     const dimensions = Math.random() > 0.3
       ? `${(Math.random() * 50 + 10).toFixed(1)} x ${(Math.random() * 50 + 10).toFixed(1)} x ${(Math.random() * 20 + 5).toFixed(1)} cm`
-      : null;
+      : undefined;
 
     // Generate thumbnail URL (optional, 60% chance)
     const thumbnail = Math.random() > 0.4
       ? `http://localhost:8000/uploads/products/thumbnails/product-${productNumber}.jpg`
-      : null;
+      : undefined;
 
     return {
       title,
@@ -121,7 +121,8 @@ export class ProductSeedService {
       const productData = this.generateProductData(i);
       
       // Ensure unique slug by appending timestamp and index if slug already exists
-      let finalSlug = productData.slug;
+      // productData.slug is always defined from generateProductData
+      let finalSlug: string = productData.slug!;
       let slugCounter = 0;
       
       while (existingSlugs.has(finalSlug)) {
