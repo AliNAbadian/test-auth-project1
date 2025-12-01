@@ -26,6 +26,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { UpdateTrackingCodeDto } from './dto/update-tracking-code.dto';
 import { ErrorResponseDto } from 'src/common/dto/response.dto';
+import { ProductSeedService } from 'src/product/product-seed.service';
 import {
   AdminDashboardResponseDto,
   PaginatedUsersResponseDto,
@@ -49,7 +50,10 @@ import {
 @Roles(Role.Admin)
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly productSeedService: ProductSeedService,
+  ) {}
 
   // ==================== DASHBOARD ====================
 
@@ -512,5 +516,62 @@ export class AdminController {
   })
   deleteProduct(@Param('productId') productId: string) {
     return this.adminService.deleteProduct(productId);
+  }
+
+  @Post('products/seed')
+  @ApiOperation({
+    summary: 'Seed products database',
+    description: 'Generate and insert 200 products into the database. Admin only.',
+  })
+  @ApiQuery({
+    name: 'count',
+    required: false,
+    type: Number,
+    example: 200,
+    description: 'Number of products to seed (default: 200)',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Products seeded successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Successfully seeded 200 products' },
+        created: { type: 'number', example: 200 },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin only',
+    type: ErrorResponseDto,
+  })
+  seedProducts(@Query('count') count?: number) {
+    return this.productSeedService.seedProducts(count || 200);
+  }
+
+  @Delete('products/seed')
+  @ApiOperation({
+    summary: 'Clear all products',
+    description: 'Delete all products from the database. Use with caution. Admin only.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Products cleared successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Successfully deleted 200 products' },
+        deleted: { type: 'number', example: 200 },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin only',
+    type: ErrorResponseDto,
+  })
+  clearProducts() {
+    return this.productSeedService.clearProducts();
   }
 }
