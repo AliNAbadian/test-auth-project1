@@ -1,10 +1,5 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  ParseIntPipe,
-} from '@nestjs/common';
-import { Redis } from '@upstash/redis';
+import { Inject, Injectable } from '@nestjs/common';
+import Redis from 'ioredis';
 
 @Injectable()
 export class OtpService {
@@ -21,7 +16,7 @@ export class OtpService {
     }
     const otp = Math.floor(100000 + Math.random() * 9000).toString();
 
-    await this.redis.set(`otp:${phone}`, otp, { ex: 120 });
+    await this.redis.set(`otp:${phone}`, otp, 'EX', 120);
 
     return { otp: otp, message: 'OTP Sent Successfully' };
   }
@@ -29,6 +24,6 @@ export class OtpService {
   async verifyOtp(phone: string, otp: number): Promise<boolean> {
     const storedOtp = await this.redis.get(`otp:${phone}`);
 
-    return storedOtp === +otp;
+    return storedOtp === String(otp);
   }
 }

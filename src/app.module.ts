@@ -31,17 +31,20 @@ import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     AuthModule,
     UserModule,
     ProductModule,
     BlogModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: process.env.DB_HOST || 'localhost',
       port: 5432,
-      username: 'postgres', // default user
-      password: '465835', // matches POSTGRES_PASSWORD
-      database: 'test', // default DB
+      username: process.env.DB_USER || 'postgres', // default user
+      password: process.env.DB_PASSWORD || 'fg465835', // matches POSTGRES_PASSWORD
+      database: process.env.DB_NAME || 'morphiq_db', // default DB
       entities: [
         User,
         UserGallery,
@@ -62,9 +65,7 @@ import { AdminModule } from './admin/admin.module';
     CartModule,
     OrderModule,
     PaymentModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+
     ScheduleModule.forRoot(),
     TasksModule,
     PanelModule,

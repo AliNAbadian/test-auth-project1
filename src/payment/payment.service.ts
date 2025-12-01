@@ -4,7 +4,7 @@ import axios from 'axios';
 
 @Injectable()
 export class PaymentService {
-  private merchantId: string;
+  private merchantId: string = 'c751ba36-87f8-42f8-9f78-3e3498f5c6f4';
   private requestUrl =
     'https://sandbox.zarinpal.com/pg/v4/payment/request.json';
   private verifyUrl = 'https://sandbox.zarinpal.com/pg/v4/payment/verify.json';
@@ -26,7 +26,7 @@ export class PaymentService {
     try {
       const payload = {
         merchant_id: this.merchantId,
-        amount: amount,
+        amount: Math.round(+amount),
         callback_url: callbackUrl,
         description: description,
         metadata: metadata || [],
@@ -62,7 +62,7 @@ export class PaymentService {
     try {
       const payload = {
         merchant_id: this.merchantId,
-        amount: amount,
+        amount: Math.round(+amount),
         authority: authority,
       };
 

@@ -1,5 +1,5 @@
 import { Module, Global } from '@nestjs/common';
-import { Redis } from '@upstash/redis';
+import Redis from 'ioredis';
 
 @Global()
 @Module({
@@ -7,10 +7,14 @@ import { Redis } from '@upstash/redis';
     {
       provide: 'REDIS_CLIENT',
       useFactory: () => {
+        const host = process.env.REDIS_HOST || '127.0.0.1';
+        const port = Number(process.env.REDIS_PORT || 6379);
+        const password = process.env.REDIS_PASSWORD || undefined;
+
         return new Redis({
-          url: 'https://immense-griffon-32128.upstash.io',
-          token:
-            'AX2AAAIncDI4OWI4YTFmN2UwMmI0ZmJhYjg2YWZkMjRiYTA4ZjBmOXAyMzIxMjg',
+          host,
+          port,
+          password,
         });
       },
     },
