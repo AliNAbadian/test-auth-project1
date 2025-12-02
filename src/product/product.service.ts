@@ -36,8 +36,107 @@ export class ProductService {
     return this.productRepository.save(newProduct);
   }
 
-  findAll() {
-    return this.productRepository.find({ relations: ['gallery'] });
+  async findAll(
+    search?: string,
+    page?: number,
+    limit?: number,
+    minPrice?: number,
+    maxPrice?: number,
+    color?: string,
+    inStock?: boolean,
+    sortBy?: 'price' | 'title' | 'created_at',
+    sortOrder?: 'ASC' | 'DESC',
+  ) {
+    // Set defaults
+    const pageNumber = page && page > 0 ? page : 1;
+    const limitNumber = limit && limit > 0 ? limit : 20;
+    const skip = (pageNumber - 1) * limitNumber;
+    const orderBy = sortBy || 'created_at';
+    const order = sortOrder || 'DESC';
+
+    // Build query
+    const queryBuilder = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.gallery', 'gallery');
+
+    // Search filter (by title or slug)
+    if (search && search.trim()) {
+      queryBuilder.where(
+        '(product.title ILIKE :search OR product.slug ILIKE :search)',
+        { search: `%${search.trim()}%` },
+      );
+    }
+
+    // Price range filters
+    if (minPrice !== undefined && minPrice !== null) {
+      if (search) {
+        queryBuilder.andWhere('product.price >= :minPrice', { minPrice });
+      } else {
+        queryBuilder.where('product.price >= :minPrice', { minPrice });
+      }
+    }
+
+    if (maxPrice !== undefined && maxPrice !== null) {
+      if (search || minPrice !== undefined) {
+        queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice });
+      } else {
+        queryBuilder.where('product.price <= :maxPrice', { maxPrice });
+      }
+    }
+
+    // Color filter
+    if (color && color.trim()) {
+      const hasWhere =
+        search || minPrice !== undefined || maxPrice !== undefined;
+      if (hasWhere) {
+        queryBuilder.andWhere('product.color ILIKE :color', {
+          color: `%${color.trim()}%`,
+        });
+      } else {
+        queryBuilder.where('product.color ILIKE :color', {
+          color: `%${color.trim()}%`,
+        });
+      }
+    }
+
+    // In stock filter (quantity > 0)
+    if (inStock === true) {
+      const hasWhere =
+        search ||
+        minPrice !== undefined ||
+        maxPrice !== undefined ||
+        (color && color.trim());
+      if (hasWhere) {
+        queryBuilder.andWhere('product.quantity > :quantity', { quantity: 0 });
+      } else {
+        queryBuilder.where('product.quantity > :quantity', { quantity: 0 });
+      }
+    }
+
+    // Sorting
+    if (orderBy === 'price') {
+      queryBuilder.orderBy('product.price', order);
+    } else if (orderBy === 'title') {
+      queryBuilder.orderBy('product.title', order);
+    } else {
+      queryBuilder.orderBy('product.created_at', order);
+    }
+
+    // Pagination
+    queryBuilder.skip(skip).take(limitNumber);
+
+    // Execute query
+    const [products, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: products,
+      meta: {
+        total,
+        page: pageNumber,
+        limit: limitNumber,
+        totalPages: Math.ceil(total / limitNumber),
+      },
+    };
   }
 
   async findOne(id: string) {

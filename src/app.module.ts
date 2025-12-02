@@ -43,7 +43,7 @@ import { AdminModule } from './admin/admin.module';
       host: process.env.DB_HOST || 'localhost',
       port: 5432,
       username: process.env.DB_USER || 'postgres', // default user
-      password: process.env.DB_PASSWORD || 'fg465835', // matches POSTGRES_PASSWORD
+      password: process.env.DB_PASSWORD || '465835', // matches POSTGRES_PASSWORD
       database: process.env.DB_NAME || 'morphiq_db', // default DB
       entities: [
         User,

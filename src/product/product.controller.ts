@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   Req,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,6 +20,7 @@ import {
   ApiConsumes,
   ApiBody,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -34,6 +36,7 @@ import { ErrorResponseDto } from 'src/common/dto/response.dto';
 import {
   ProductResponseDto,
   GalleryImageDto,
+  PaginatedProductsResponseDto,
 } from './dto/response/product-response.dto';
 import { Roles } from '@/auth/decorator/role.decorator';
 import { Role } from '@/auth/enum/role.enum';
@@ -237,16 +240,110 @@ export class ProductController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all products',
-    description: 'Returns all products with their gallery images',
+    summary: 'Get all products with filters and pagination',
+    description:
+      'Returns paginated products with optional filters: search, price range, color, stock status, and sorting',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Search by product title or slug',
+    example: 'iPhone',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number (default: 1)',
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page (default: 20)',
+    example: 20,
+  })
+  @ApiQuery({
+    name: 'minPrice',
+    required: false,
+    type: Number,
+    description: 'Minimum price filter',
+    example: 100,
+  })
+  @ApiQuery({
+    name: 'maxPrice',
+    required: false,
+    type: Number,
+    description: 'Maximum price filter',
+    example: 1000,
+  })
+  @ApiQuery({
+    name: 'color',
+    required: false,
+    type: String,
+    description: 'Filter by color',
+    example: 'Black',
+  })
+  @ApiQuery({
+    name: 'inStock',
+    required: false,
+    type: Boolean,
+    description: 'Filter only products in stock (quantity > 0)',
+    example: true,
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: ['price', 'title', 'created_at'],
+    description: 'Sort field (default: created_at)',
+    example: 'price',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    enum: ['ASC', 'DESC'],
+    description: 'Sort order (default: DESC)',
+    example: 'ASC',
   })
   @ApiResponse({
     status: 200,
-    description: 'Returns all products with gallery',
-    type: [ProductResponseDto],
+    description: 'Returns paginated products with gallery',
+    type: PaginatedProductsResponseDto,
   })
-  findAll() {
-    return this.productService.findAll();
+  findAll(
+    @Query('search') search?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('minPrice') minPrice?: number,
+    @Query('maxPrice') maxPrice?: number,
+    @Query('color') color?: string,
+    @Query('inStock') inStock?: string | boolean,
+    @Query('sortBy') sortBy?: 'price' | 'title' | 'created_at',
+    @Query('sortOrder') sortOrder?: 'ASC' | 'DESC',
+  ) {
+    // Convert inStock query param to boolean
+    let inStockBool: boolean | undefined = undefined;
+    if (inStock !== undefined) {
+      if (typeof inStock === 'boolean') {
+        inStockBool = inStock;
+      } else if (typeof inStock === 'string') {
+        inStockBool = inStock.toLowerCase() === 'true';
+      }
+    }
+
+    return this.productService.findAll(
+      search,
+      page,
+      limit,
+      minPrice ? Number(minPrice) : undefined,
+      maxPrice ? Number(maxPrice) : undefined,
+      color,
+      inStockBool,
+      sortBy,
+      sortOrder,
+    );
   }
 
   @Get(':id')

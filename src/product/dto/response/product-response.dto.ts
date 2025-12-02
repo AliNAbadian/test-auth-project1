@@ -54,6 +54,27 @@ export class ProductListResponseDto {
   data: ProductResponseDto[];
 }
 
+export class PaginatedProductsResponseDto {
+  @ApiProperty({ type: [ProductResponseDto] })
+  data: ProductResponseDto[];
+
+  @ApiProperty({
+    type: 'object',
+    properties: {
+      total: { type: 'number', example: 100 },
+      page: { type: 'number', example: 1 },
+      limit: { type: 'number', example: 20 },
+      totalPages: { type: 'number', example: 5 },
+    },
+  })
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 export class GalleryUploadResponseDto {
   @ApiProperty({ type: [GalleryImageDto] })
   uploadedImages: GalleryImageDto[];
